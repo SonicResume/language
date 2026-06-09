@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Page Title -->
+  <title>NOAH Commerce</title>
+
+  <!-- Description -->
+  <meta name="description" content="NOAH Commerce is an AI-powered tool that generates high-converting product descriptions, ads, and captions for ecommerce brands." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="NOAH Commerce - AI Product Content Generator" />
+  <meta property="og:description" content="Create product descriptions, ads, and social content instantly with AI. Built for ecommerce brands." />
+  <meta property="og:image" content="/logo.png" />
+  <meta property="og:url" content="https://sonicwrite.sonicresume.com" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="NOAH Commerce" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="NOAH Commerce" />
+  <meta name="twitter:description" content="AI tool for product descriptions, ads, and ecommerce content." />
+  <meta name="twitter:image" content="/logo.png" />
+
+  <!-- FAVICON -->
+ <link rel="icon" href="/favicon.ico" />
+
+  <!-- Loading Styles -->
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: white;
+    }
+
+    #loading {
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    #loading img {
+      width: 120px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+
+    #loading h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    #loading p {
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- React App Mount -->
+  <div id="root">
+    <div id="loading">
+      <img src="/logo.png" alt="NOAH Commerce Logo" />
+      <h1>NOAH Commerce</h1>
+      <p>Loading product content tools...</p>
+    </div>
+  </div>
+
+  <!-- React Entry -->
+  <script type="module" src="/src/react-app/main.tsx"></script>
+
+</body>
+</html>
