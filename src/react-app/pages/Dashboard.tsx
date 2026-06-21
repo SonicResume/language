@@ -107,18 +107,21 @@ export default function ToolPage() {
     setOutputText("");
 
     try {
-      const response = await fetch("https://my-backend-1-qzxx.onrender.com/api/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: inputText,
-          tool: selectedTool,
-          tone: selectedTool === "tone" ? selectedTone : undefined,
-          language: selectedTool === "translate" ? selectedLanguage : undefined,
-          contentType: selectedContentType,
-        }),
-      });
-
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/ai`,
+      {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+           text: inputText,
+           tool: selectedTool,
+           tone: selectedTool === "tone" ? selectedTone : undefined,
+           language: selectedTool === "translate" ? selectedLanguage : undefined,
+           contentType: selectedContentType,
+           email: "guest"
+         }),
+        }
+      );
       if (!response.ok) {
         const err = await response.text();
         throw new Error(err);
@@ -294,4 +297,3 @@ export default function ToolPage() {
     </div>
   );
 }
-

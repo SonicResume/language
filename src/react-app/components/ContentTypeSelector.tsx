@@ -3,37 +3,46 @@ import {
   Megaphone,
   Search,
   Store,
-  Globe,
   Layout,
-  List,
-  Mail
+  MessageCircle,
+  HelpCircle,
+  DollarSign,
+  Wrench
 } from "lucide-react";
 
-const contentTypes = [
-  { id: "product_description", label: "Product Description", icon: ShoppingBag },
-  { id: "product_ad_copy", label: "Ad Copy", icon: Megaphone },
-  { id: "product_seo", label: "SEO Listing", icon: Search },
-  { id: "product_amazon", label: "Amazon Listing", icon: Store },
-  { id: "product_shopify", label: "Shopify Page", icon: Globe },
-  { id: "product_landing", label: "Landing Page", icon: Layout },
-  { id: "product_features", label: "Feature Highlights", icon: List },
-  { id: "product_email", label: "Sales Email", icon: Mail }
-];interface ContentTypeSelectorProps {
-
+interface ContentTypeSelectorProps {
   selectedType: string;
   onSelect: (type: string) => void;
 }
 
-export function ContentTypeSelector({ selectedType, onSelect }: ContentTypeSelectorProps) {
+const contentTypes = [
+  { id: "e_store_content", label: "E-Store Content", icon: ShoppingBag },
+  { id: "product_descriptions", label: "Product Descriptions", icon: ShoppingBag },
+  { id: "product_demo_content", label: "Product Demo Content (Videos & Visual Guides)", icon: Store },
+  { id: "blogs", label: "Blogs", icon: Layout },
+  { id: "social_media_content", label: "Social Media Content", icon: MessageCircle },
+  { id: "marketing_materials", label: "Marketing Materials", icon: Megaphone },
+  { id: "seo_content", label: "SEO Content", icon: Search },
+  { id: "buyers_guides", label: "Buyer’s Guides", icon: HelpCircle },
+  { id: "pricing_guides", label: "Pricing Guides", icon: DollarSign },
+  { id: "how_to_guides", label: "How-To Guides", icon: Wrench }
+];
+
+export function ContentTypeSelector({
+  selectedType,
+  onSelect
+}: ContentTypeSelectorProps) {
   return (
     <div className="mb-6">
       <h2 className="text-sm font-semibold text-sky-800/80 mb-3 uppercase tracking-wider">
         Content Type
       </h2>
+
       <div className="flex flex-wrap gap-2">
         {contentTypes.map((type) => {
           const Icon = type.icon;
           const isSelected = selectedType === type.id;
+
           return (
             <button
               key={type.id}

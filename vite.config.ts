@@ -16,7 +16,7 @@ export default defineConfig({
 
   preview: {
     host: true,
-    port: 5176,        // ✅ PREVIEW PORT (important)
+    port: 5173,        // ✅ PREVIEW PORT (important)
     strictPort: true,
     allowedHosts: true,
   },
