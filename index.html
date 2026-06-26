@@ -4,78 +4,108 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Page Title -->
-  <title>NOAH Commerce</title>
+  <!-- TITLE -->
+  <title>NOAH Global Language | AI Translation, Voice & Braille Learning</title>
 
-  <!-- Description -->
-  <meta name="description" content="NOAH Commerce is an AI-powered tool that generates high-converting product descriptions, ads, and captions for ecommerce brands." />
+  <!-- SEO -->
+  <meta name="description" content="NOAH Global Language is an AI-powered platform for translation, voice input, interactive maps, and Braille conversion. Learn languages visually and accessibly." />
+  <meta name="keywords" content="language learning, AI translation, voice translator, braille converter, multilingual app, interactive map learning, NOAH language app" />
+  <meta name="author" content="NOAH Platform" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://noah-language-broyfl26y-sonic-resume.vercel.app" />
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="NOAH Commerce - AI Product Content Generator" />
-  <meta property="og:description" content="Create product descriptions, ads, and social content instantly with AI. Built for ecommerce brands." />
-  <meta property="og:image" content="/logo.png" />
-  <meta property="og:url" content="https://sonicwrite.sonicresume.com" />
+  <!-- OPEN GRAPH (FACEBOOK / LINK PREVIEW) -->
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="NOAH Commerce" />
+  <meta property="og:title" content="NOAH Global Language" />
+  <meta property="og:description" content="Translate, speak, and learn languages using interactive maps and AI tools." />
+  <meta property="og:image" content="/logo.png" />
+  <meta property="og:url" content="https://noah-language-broyfl26y-sonic-resume.vercel.app" />
+  <meta property="og:site_name" content="NOAH Global Language" />
 
-  <!-- Twitter -->
+  <!-- TWITTER CARD -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="NOAH Commerce" />
-  <meta name="twitter:description" content="AI tool for product descriptions, ads, and ecommerce content." />
+  <meta name="twitter:title" content="NOAH Global Language" />
+  <meta name="twitter:description" content="AI-powered language learning with maps, voice, translation, and Braille support." />
   <meta name="twitter:image" content="/logo.png" />
 
-  <!-- FAVICON -->
- <link rel="icon" href="/favicon.ico" />
+  <!-- ICONS -->
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/logo.png" />
 
-  <!-- Loading Styles -->
+  <!-- PERFORMANCE -->
+  <link rel="preconnect" href="https://my-backend-1-qdhh.onrender.com" />
+
+  <!-- THEME -->
+  <meta name="theme-color" content="#059669" />
+
+  <!-- PWA (optional but future-ready) -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- BASIC STYLES -->
   <style>
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0f172a;
-      color: white;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #ecfdf5;
+      color: #064e3b;
+    }
+
+    #root {
+      min-height: 100vh;
     }
 
     #loading {
-      display: flex;
       height: 100vh;
+      display: flex;
       align-items: center;
       justify-content: center;
       flex-direction: column;
       text-align: center;
+      gap: 10px;
     }
 
     #loading img {
-      width: 120px;
-      margin-bottom: 20px;
-      border-radius: 10px;
+      width: 110px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 
     #loading h1 {
+      font-size: 26px;
+      font-weight: 800;
       margin: 0;
-      font-size: 28px;
-      font-weight: 600;
     }
 
     #loading p {
       opacity: 0.7;
+      margin: 0;
     }
   </style>
+
+  <!-- STRUCTURED DATA (GOOGLE SEO BOOST) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "NOAH Global Language",
+    "url": "https://noah-language-broyfl26y-sonic-resume.vercel.app",
+    "description": "AI-powered language learning platform with translation, voice input, interactive maps, and Braille conversion.",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web"
+  }
+  </script>
+
 </head>
 
 <body>
-
-  <!-- React App Mount -->
   <div id="root">
     <div id="loading">
-      <img src="/logo.png" alt="NOAH Commerce Logo" />
-      <h1>NOAH Commerce</h1>
-      <p>Loading product content tools...</p>
+      <img src="/logo.png" alt="NOAH Global Language Logo" />
+      <h1>NOAH Global Language</h1>
+      <p>Loading AI-powered learning experience...</p>
     </div>
   </div>
 
-  <!-- React Entry -->
   <script type="module" src="/src/react-app/main.tsx"></script>
-
 </body>
 </html>

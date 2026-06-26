@@ -1,8 +1,0 @@
-FROM phi3
-
-PARAMETER temperature 0.2
-PARAMETER num_predict 60
-PARAMETER num_ctx 256
-PARAMETER repeat_penalty 1.1
-
-SYSTEM You ONLY rewrite the input text. Fix grammar, spelling, and clarity. Keep the same meaning. Do not add or remove content. Return only the improved text.

@@ -1,299 +1,139 @@
-import { useState, useEffect, useRef } from "react";
-import { 
-  RefreshCw, 
-  Expand, 
-  FileText, 
-  CheckCircle, 
-  MessageSquare, 
-  Languages,
-  Copy,
-  ArrowRight,
-  Upload,
-  File,
-  X,
-  Download,
-  Trash2,      // Added for clear/reset
-  Loader2,     // Spinner
-  Hourglass,   // Hourglass
-  Heart        // Heartbeat
-} from "lucide-react";
-import { ToolButton } from "@/react-app/components/ToolButton";
-import { ToneSelector } from "@/react-app/components/ToneSelector";
-import { LanguageSelector } from "@/react-app/components/LanguageSelector";
-import { ContentTypeSelector, contentTypes } from "@/react-app/components/ContentTypeSelector";
+import { useState, memo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { Map as MapIcon, ArrowRight } from "lucide-react";
 
-type Tool = "rewrite" | "expand" | "summarize" | "grammar" | "tone" | "translate";
+import {
+  ComposableMap,
+  Geographies,
+  Geography
+} from "react-simple-maps";
 
-const tools = [
-  { id: "rewrite" as Tool, label: "Optimize", icon: RefreshCw, description: "Improve product description" },
-  { id: "expand" as Tool, label: "Expand", icon: Expand, description: "Add more product details" },
-  { id: "summarize" as Tool, label: "Shorten", icon: FileText, description: "Create a shorter version" },
-  { id: "grammar" as Tool, label: "Fix", icon: CheckCircle, description: "Clean and correct text" },
-  { id: "tone" as Tool, label: "Style", icon: MessageSquare, description: "Adjust tone (luxury, casual)" },
-  { id: "translate" as Tool, label: "Translate", icon: Languages, description: "Convert for global markets" },
-];
+const geoUrl = "/world.geojson";
 
-const tones = ["Professional", "Casual", "Formal", "Friendly", "Persuasive", "Academic"];
-const languages = ["Spanish", "French", "German", "Italian", "Portuguese", "Japanese", "Chinese", "Korean"];
+const languageNames: Record<string, string> = {
+  af: "Afrikaans", sq: "Albanian", ar: "Arabic", bn: "Bengali", bg: "Bulgarian",
+  zh: "Chinese", cs: "Czech", de: "German", da: "Danish", es: "Spanish",
+  fi: "Finnish", fr: "French", el: "Greek", hu: "Hungarian", id: "Indonesian",
+  ga: "Irish", he: "Hebrew", hi: "Hindi", fa: "Persian", is: "Icelandic",
+  it: "Italian", ja: "Japanese", sw: "Swahili", ko: "Korean", lo: "Lao",
+  si: "Sinhala", my: "Burmese", mt: "Maltese", ms: "Malay", nl: "Dutch",
+  no: "Norwegian", ne: "Nepali", ur: "Urdu", tl: "Filipino", pl: "Polish",
+  pt: "Portuguese", ro: "Romanian", ru: "Russian", sv: "Swedish", sk: "Slovak",
+  th: "Thai", tr: "Turkish", uk: "Ukrainian", en: "English", vi: "Vietnamese"
+};
 
-export default function ToolPage() {
-  const [selectedTool, setSelectedTool] = useState<Tool>("rewrite");
-  const [inputText, setInputText] = useState("");
-  const [outputText, setOutputText] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedTone, setSelectedTone] = useState(tones[0]);
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
-  const [selectedContentType, setSelectedContentType] = useState(contentTypes[0].id);
-  const [copied, setCopied] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number } | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+const countryMap: Record<string, string> = {
+  "South Africa": "af", "Albania": "sq", "Saudi Arabia": "ar", "Bangladesh": "bn",
+  "Bulgaria": "bg", "China": "zh", "Czech Republic": "cs", "Germany": "de",
+  "Denmark": "da", "Spain": "es", "Finland": "fi", "France": "fr", "Greece": "el",
+  "Hungary": "hu", "Indonesia": "id", "Ireland": "ga", "Israel": "he", "India": "hi",
+  "Iran": "fa", "Iceland": "is", "Italy": "it", "Japan": "ja", "Kenya": "sw",
+  "South Korea": "ko", "Laos": "lo", "Sri Lanka": "si", "Myanmar": "my", "Malta": "mt",
+  "Malaysia": "ms", "Netherlands": "nl", "Norway": "no", "Nepal": "ne", "Pakistan": "ur",
+  "Philippines": "tl", "Poland": "pl", "Portugal": "pt", "Romania": "ro", "Russia": "ru",
+  "Sweden": "sv", "Slovakia": "sk", "Thailand": "th", "Turkey": "tr", "Ukraine": "uk",
+  "United States": "en", "United States of America": "en", "Vietnam": "vi"
+};
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+const WorldMap = memo(({ onCountrySelect, currentSelection }: { 
+  onCountrySelect: (name: string) => void; 
+  currentSelection: string;
+}) => {
+  return (
+    <div className="w-full overflow-hidden rounded-lg bg-emerald-50/30 border max-h-[300px] flex items-center justify-center">
+      <ComposableMap className="w-full h-full object-contain max-h-[300px]">
+        <Geographies geography={geoUrl}>
+          {({ geographies }: any) =>
+            geographies.map((geo: any) => {
+              const props = geo.properties || {};
+              const name = props.ADMIN || props.admin || props.NAME || props.name || props.name_long;
 
-    if (file.size > 100 * 1024) {
-      alert("File is too large. Please upload a file smaller than 100KB.");
-      return;
-    }
+              if (!name) return null;
+              const isSelected = currentSelection === name;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      setInputText(text);
-      setUploadedFile({ name: file.name, size: file.size });
-    };
-    reader.onerror = () => {
-      alert("Failed to read file. Please try again.");
-    };
-    reader.readAsText(file);
-  };
+              return (
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  onClick={() => onCountrySelect(name)}
+                  style={{
+                    default: { 
+                      fill: isSelected ? "#059669" : "#d1fae5", 
+                      stroke: "#ffffff",
+                      strokeWidth: 0.5,
+                      outline: "none",
+                      transition: "fill 150ms ease"
+                    },
+                    hover: { fill: "#10b981", outline: "none", cursor: "pointer" },
+                    pressed: { fill: "#047857", outline: "none" }
+                  }}
+                />
+              );
+            })
+          }
+        </Geographies>
+      </ComposableMap>
+    </div>
+  );
+});
+WorldMap.displayName = "WorldMap";
 
-  const clearUploadedFile = () => {
-    setUploadedFile(null);
-    setInputText("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+export default function KidsGlobalPage() {
+  const navigate = useNavigate();
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [displayLanguage, setDisplayLanguage] = useState("");
 
-  // Full reset function for inputs and outputs
-  const handleResetAll = () => {
-    setInputText("");
-    setOutputText("");
-    setUploadedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap";
-    link.rel = "stylesheet";
-    document.head.appendChild(link);
-    return () => { document.head.removeChild(link); };
+  // 🚀 INTERACTIVE EXPLORER LOCK: Clicking only highlights the map, shows details, and prevents jumping pages instantly
+  const handleCountrySelect = useCallback((name: string) => {
+    setSelectedCountry(name);
+    const code = countryMap[name] || "en";
+    setSelectedLanguage(code);
+    setDisplayLanguage(languageNames[code] || "Unknown Language");
   }, []);
 
-  const handleProcess = async () => {
-    if (!inputText.trim()) return;
-
-    if (inputText.length > 10000) {
-      alert("Text too long (max 10,000 characters)");
-      return;
-    }
-
-    setIsProcessing(true);
-    setOutputText("");
-
-    try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/ai`,
-      {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({
-           text: inputText,
-           tool: selectedTool,
-           tone: selectedTool === "tone" ? selectedTone : undefined,
-           language: selectedTool === "translate" ? selectedLanguage : undefined,
-           contentType: selectedContentType,
-           email: "guest"
-         }),
-        }
-      );
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err);
-      }
-
-      const data = await response.json();
-      setOutputText(data.result);
-
-    } catch (error: any) {
-      setOutputText(error.message || "Processing failed.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleCopy = async () => {
-    if (!outputText) return;
-    await navigator.clipboard.writeText(outputText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleExport = () => {
-    if (!outputText) return;
-    
-    const blob = new Blob([outputText], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `NOAH Commerce-${selectedTool}-${Date.now()}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const handleProceedToWorkspace = () => {
+    const targetCountry = selectedCountry || "United States";
+    navigate(`/workspace?lang=${selectedLanguage}&country=${encodeURIComponent(targetCountry)}`);
   };
 
   return (
-    <div className="min-h-screen bg-sky-50 p-6 text-slate-900 transition-colors duration-300">
-      <main className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50 p-4 sm:p-6 text-slate-900 overflow-x-hidden">
+      <div className="max-w-4xl mx-auto space-y-4">
         
-        {/* Content Type Selection */}
-        <ContentTypeSelector 
-          selectedType={selectedContentType} 
-          onSelect={setSelectedContentType} 
-        />
-
-        {/* Tool Selection */}
-        <div className="bg-white/80 backdrop-blur border border-sky-100 rounded-2xl p-5 shadow-sm">
-          <h2 className="text-xs font-semibold text-sky-600 mb-3 uppercase tracking-wider">Select a tool</h2>
-          <div className="flex flex-wrap gap-2">
-            {tools.map((tool) => (
-              <ToolButton
-                key={tool.id}
-                tool={tool}
-                isSelected={selectedTool === tool.id}
-                onClick={() => setSelectedTool(tool.id)}
-              />
-            ))}
+        <div className="border-b pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-emerald-700 flex items-center gap-2">
+              <MapIcon size={24} /> Step 1: Explore World Geography
+            </h1>
+            <p className="text-xs text-slate-500 mt-1">Click any country boundary on the map layers to explore its parameters.</p>
           </div>
+          <button
+            type="button"
+            onClick={handleProceedToWorkspace}
+            className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-md text-sm sm:text-base"
+          >
+            Open Workspace <ArrowRight size={16} />
+          </button>
         </div>
 
-        {/* Additional Options for Tone/Translate */}
-        {selectedTool === "tone" && (
-          <div className="bg-white/80 backdrop-blur border border-sky-100 rounded-2xl p-5 shadow-sm">
-            <ToneSelector tones={tones} selectedTone={selectedTone} onSelect={setSelectedTone} />
-          </div>
-        )}
-        {selectedTool === "translate" && (
-          <div className="bg-white/80 backdrop-blur border border-sky-100 rounded-2xl p-5 shadow-sm">
-            <LanguageSelector languages={languages} selectedLanguage={selectedLanguage} onSelect={setSelectedLanguage} />
-          </div>
-        )}
-
-        {/* Main Workspace */}
-        <div className="grid md:grid-cols-2 gap-6">
-          
-          {/* Input Panel */}
-          <div className="bg-white border border-sky-200 rounded-2xl p-5 shadow-sm space-y-4 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-slate-700">Source Text</label>
-                <div className="flex items-center gap-2">
-                  {uploadedFile && (
-                    <div className="flex items-center gap-1 px-2 py-0.5 bg-sky-100 text-sky-800 rounded text-xs">
-                      <File className="w-3 h-3" />
-                      <span className="truncate max-w-[100px]">{uploadedFile.name}</span>
-                      <button onClick={clearUploadedFile} className="hover:text-red-500 ml-1">
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  )}
-                  <span className="text-xs text-slate-400">{inputText.length} chars</span>
-                </div>
-              </div>
-
-              <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Paste or type your product details here..."
-                className="w-full h-64 p-3 bg-sky-50/30 border border-sky-100 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-sky-400 focus:bg-white transition-all text-sm"
-              />
-            </div>
-
-            {/* Actions Row */}
-            <div className="flex items-center gap-2 pt-2">
-              <button
-                onClick={handleProcess}
-                disabled={isProcessing || !inputText.trim()}
-                className="flex-1 bg-sky-600 hover:bg-sky-700 disabled:bg-slate-200 text-white rounded-xl py-2.5 font-medium flex items-center justify-center gap-2 transition-all shadow-sm text-sm"
-              >
-                {isProcessing ? "Processing..." : "Generate Optimization"}
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={handleResetAll}
-                title="Clear all fields"
-                className="p-2.5 border border-sky-200 hover:bg-sky-100/50 text-slate-600 hover:text-slate-900 rounded-xl transition-all"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-
-              <label className="p-2.5 border border-sky-200 hover:bg-sky-100/50 text-slate-600 hover:text-slate-900 rounded-xl transition-all cursor-pointer">
-                <Upload className="w-4 h-4" />
-                <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".txt,.md" className="hidden" />
-              </label>
-            </div>
-          </div>
-
-                  {/* Output Panel with Animated Loading Array */}
-          <div className="bg-white border border-sky-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between relative overflow-hidden">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-slate-700">Optimized Results</label>
-                {outputText && (
-                  <div className="flex gap-1">
-                    <button onClick={handleCopy} className="p-1.5 hover:bg-sky-50 rounded text-slate-500 hover:text-sky-600 transition-all" title="Copy text">
-                      {copied ? <CheckCircle className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                    </button>
-                    <button onClick={handleExport} className="p-1.5 hover:bg-sky-50 rounded text-slate-500 hover:text-sky-600 transition-all" title="Download text">
-                      <Download className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {isProcessing ? (
-                <div className="w-full h-64 flex flex-col items-center justify-center bg-sky-50/20 border border-dashed border-sky-200 rounded-xl space-y-4">
-                  <div className="flex items-center gap-4 text-sky-500">
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                    <Hourglass className="w-6 h-6 animate-bounce" />
-                    <Heart className="w-6 h-6 animate-pulse text-red-400" />
-                  </div>
-                  <p className="text-xs font-medium text-sky-600 animate-pulse tracking-wide">Enhancing your product messaging...</p>
-                </div>
-              ) : (
-                <textarea
-                  readOnly
-                  value={outputText}
-                  placeholder="Your generated alternative content will appear here..."
-                  className="w-full h-64 p-3 bg-slate-50/50 border border-slate-100 rounded-xl resize-none focus:outline-none text-sm text-slate-700"
-                />
-              )}
-            </div>
-            
-            <div className="text-[10px] text-slate-400 text-right pt-2 italic">
-              Powered by NOAH Commerce Engine
-            </div>
-          </div>
-
+        {/* GEOGRAPHY PROFILE DISPLAY BANNER */}
+        <div className="bg-emerald-600 text-white rounded-xl shadow p-4 text-center border border-emerald-700">
+          <h2 className="text-base sm:text-lg font-bold tracking-wide">
+            📍 Country Name: {selectedCountry || "Click a country to reveal..."}
+          </h2>
+          {displayLanguage && (
+            <p className="text-xs sm:text-sm font-medium mt-1 bg-emerald-700/50 inline-block px-3 py-1 rounded-full">
+              🗣️ Primary Native Language: <strong>{displayLanguage}</strong>
+            </p>
+          )}
         </div>
-      </main>
+
+        <div className="bg-white rounded-xl shadow p-4">
+          <WorldMap onCountrySelect={handleCountrySelect} currentSelection={selectedCountry} />
+        </div>
+
+      </div>
     </div>
   );
 }

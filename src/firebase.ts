@@ -9,8 +9,8 @@ const firebaseConfig = {
   projectId: "resume-97612",
   storageBucket: "resume-97612.firebasestorage.app",
   messagingSenderId: "1096541776873",
-  appId: "1:1096541776873:web:a4c43acb22a38cec8f7978",
-  measurementId: "G-QVJGWT7HDE"
+  appId: "1:1096541776873:web:9e9a9c98fb6f4f608f7978",
+  measurementId: "G-539D6VEVJ5"
 };
 
 // Initialize Firebase once to prevent "already exists" errors during hot-reload

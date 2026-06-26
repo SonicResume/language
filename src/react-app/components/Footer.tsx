@@ -24,7 +24,7 @@ export default function Footer() {
         {/* LEFT — LOGO */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <img src="/logo.png" alt="logo" style={{ width: "28px" }} />
-          <span style={{ fontWeight: "600" }}>NOAH Commerce</span>
+          <span style={{ fontWeight: "600" }}>NOAH Global Language</span>
         </div>
 
         {/* CENTER — LINKS */}

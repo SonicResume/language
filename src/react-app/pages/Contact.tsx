@@ -2,20 +2,20 @@ import { Mail, Facebook } from "lucide-react";
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-sky-50/40 px-4 text-sky-950 font-sans">
-      <div className="w-full max-w-md rounded-2xl border border-sky-100 bg-white p-8 shadow-sm">
+    <div className="min-h-screen flex items-center justify-center bg-green-50/40 px-4 text-slate-900 font-sans">
+      <div className="w-full max-w-md rounded-2xl border border-green-100 bg-white p-8 shadow-sm">
 
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="p-2.5 bg-sky-50 text-sky-600 rounded-xl border border-sky-100 inline-flex">
+          <div className="p-2.5 bg-green-50 text-green-600 rounded-xl border border-green-100 inline-flex">
             <Mail size={20} />
           </div>
 
-          <h2 className="text-2xl font-extrabold mt-3 text-sky-950">
+          <h2 className="text-2xl font-extrabold mt-3 text-slate-900">
             Contact
           </h2>
 
-          <p className="text-xs text-sky-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Choose how to reach us
           </p>
         </div>
@@ -25,7 +25,7 @@ export default function ContactPage() {
 
           <a
             href="https://www.sonicresume.com/contact"
-            className="w-full flex items-center justify-center bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm p-3 rounded-xl transition"
+            className="w-full flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-sm p-3 rounded-xl transition"
           >
             Contact Business
           </a>

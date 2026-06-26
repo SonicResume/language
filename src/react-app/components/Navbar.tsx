@@ -17,7 +17,7 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         <img src="/logo.png" style={{ width: "30px", height: "30px", objectFit: "contain" }} alt="Logo" />
         <Link to="/" style={{ fontWeight: "800", textDecoration: "none", color: "#0c4a6e", letterSpacing: "-0.02em" }}>
-         NOAH Commerce
+         NOAH Global Language
         </Link>
       </div>
 
