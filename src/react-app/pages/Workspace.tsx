@@ -94,7 +94,7 @@ export default function WorkspacePage() {
           signal: controller.signal,
           body: JSON.stringify({
             text: value,
-            targetLang: targetLang,
+             lang: targetLang, 
           }),
         }
       );
@@ -195,7 +195,7 @@ export default function WorkspacePage() {
             {/* RESET BUTTON */}
             <button
               type="button"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/account")}
               className="p-2 bg-white hover:bg-slate-100 rounded-xl border shadow-sm text-slate-600 transition flex items-center justify-center"
               aria-label="Return to map page"
               title="Reset configuration and return to map"

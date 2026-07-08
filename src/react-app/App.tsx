@@ -5,6 +5,7 @@ import Layout from "./pages/Layout";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login"; 
 import Dashboard from "./pages/Dashboard";
+import AccountPage from "./pages/AccountPage";
 import Contact from "./pages/Contact";
 import Pricing from "./pages/Pricing";
 import Terms from "./pages/Terms";
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="signup" element={<Login />} /> 
           
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="account" element={<AccountPage />} />
           <Route path="blog" element={<BlogPostPage />} />
           <Route path="blog/:slug" element={<BlogPostPage />} />
           <Route path="contact" element={<Contact />} />

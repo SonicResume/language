@@ -117,6 +117,13 @@ export default function KidsGlobalPage() {
           </button>
         </div>
 
+         <button
+           onClick={() => navigate("/account")}
+           className="px-4 py-2 rounded-xl bg-slate-900 text-white"
+        >
+           Account
+         </button>
+
         {/* GEOGRAPHY PROFILE DISPLAY BANNER */}
         <div className="bg-emerald-600 text-white rounded-xl shadow p-4 text-center border border-emerald-700">
           <h2 className="text-base sm:text-lg font-bold tracking-wide">

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Home } from "lucide-react";
-import { auth } from "../../firebase";
+import { auth } from "../lib/firebase";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -35,10 +35,10 @@ export default function AuthPage() {
 
       if (mode === "login") {
         await signInWithEmailAndPassword(auth, email, password);
-        navigate("/dashboard");
+        navigate("/account");
       } else if (mode === "signup") {
         await createUserWithEmailAndPassword(auth, email, password);
-        navigate("/dashboard");
+        navigate("/account");
       } else if (mode === "reset") {
         await sendPasswordResetEmail(auth, email);
         setMsg("Protocol Sent. Check Inbox.");
@@ -58,7 +58,7 @@ export default function AuthPage() {
 
       // wait for auth state to settle
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/account");
       }, 100);
     } catch (e: any) {
       setErr(e.message);
@@ -84,7 +84,7 @@ export default function AuthPage() {
             <img src="/logo.png" alt="NOAH" className="w-10 h-10 object-contain" />
           </div>
           <h1 className="text-3xl font-black italic tracking-tighter uppercase text-slate-900">
-            Noah <span className="text-purple-600">Global Language</span>
+           Noah <span className="text-emerald-600">Global Language</span>
           </h1>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">
             Secure Neural Access 
