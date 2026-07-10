@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { auth } from "../lib/firebase";
 
 const plans = [
   {
@@ -82,7 +83,7 @@ export default function PricingPage() {
         },
         body: JSON.stringify({
         price_id: plan.stripePriceId,
-        email: "test@example.com" 
+        email: auth.currentUser?.email,
         }),
       });
 
