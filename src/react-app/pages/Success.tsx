@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 
+const DASHBOARD_URLS: Record<string, string> = {
+  "noah-language": "https://language.sonicresume.com/dashboard",
+
+  // Add more apps here later
+  // "resume-builder": "https://resume-builder.vercel.app/dashboard",
+};
+
 export default function SuccessPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,84 +36,51 @@ export default function SuccessPage() {
         if (data.success) {
           setSuccess(true);
           setStatus("Your account has been upgraded 🎉");
-
-          localStorage.removeItem("paymentApp");
-
         } else {
-          setStatus(
-            data.message || "Payment verification failed."
-          );
+          setStatus(data.message || "Payment verification failed.");
         }
-
       } catch (error) {
-        console.error("Payment verification error:", error);
-
-        setStatus(
-          "Unable to verify payment. Please contact support."
-        );
-
+        console.error(error);
+        setStatus("Unable to verify payment. Please contact support.");
       } finally {
         setLoading(false);
       }
     };
 
     verifyPayment();
-
   }, []);
 
-
   const returnToDashboard = () => {
+    const app = localStorage.getItem("paymentApp");
 
-    const app =
-      localStorage.getItem("paymentApp");
-
-
-    if (app === "sonicresume") {
-      window.location.href =
-        "https://sonicresume.com/dashboard";
+    if (app && DASHBOARD_URLS[app]) {
+      localStorage.removeItem("paymentApp");
+      window.location.href = DASHBOARD_URLS[app];
       return;
     }
 
-
-    if (app === "noah-language") {
-      window.location.href =
-        "https://noah-language.com/dashboard";
-      return;
-    }
-
-
-    window.location.href="/dashboard";
+    localStorage.removeItem("paymentApp");
+    window.location.href = "/";
   };
-
 
   return (
     <div style={styles.container}>
-
       <div style={styles.card}>
-
         <div style={styles.icon}>
           {loading ? "⏳" : success ? "🎉" : "⚠️"}
         </div>
 
-
         <h1 style={styles.title}>
-          {success
-            ? "Payment Successful"
-            : "Payment Verification"}
+          {success ? "Payment Successful" : "Payment Verification"}
         </h1>
 
-
-        <p style={styles.subtitle}>
-          {status}
-        </p>
-
+        <p style={styles.subtitle}>{status}</p>
 
         {loading && (
           <div style={styles.loader}>
             Confirming your upgrade...
           </div>
         )}
-
 
         {!loading && success && (
           <button
@@ -117,16 +91,11 @@ export default function SuccessPage() {
           </button>
         )}
 
-
         {!loading && !success && (
-          <a
-            href="/pricing"
-            style={styles.button}
-          >
+          <a href="/pricing" style={styles.button}>
             Return To Pricing
           </a>
         )}
-
 
         {sessionId && (
           <p style={styles.session}>
@@ -135,84 +104,70 @@ export default function SuccessPage() {
             {sessionId}
           </p>
         )}
-
       </div>
-
     </div>
   );
 }
 
-
 const styles: Record<string, React.CSSProperties> = {
-
-  container:{
-    minHeight:"100vh",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-    background:
-      "linear-gradient(135deg,#ecfdf5,#f8fafc)",
-    fontFamily:"system-ui,sans-serif",
-    padding:"20px"
+  container: {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "linear-gradient(135deg,#ecfdf5,#f8fafc)",
+    fontFamily: "system-ui,sans-serif",
+    padding: "20px",
   },
 
-
-  card:{
-    background:"#fff",
-    width:"100%",
-    maxWidth:"430px",
-    padding:"45px 30px",
-    borderRadius:"24px",
-    textAlign:"center",
-    boxShadow:
-      "0 20px 50px rgba(0,0,0,.08)"
+  card: {
+    background: "#fff",
+    width: "100%",
+    maxWidth: "430px",
+    padding: "45px 30px",
+    borderRadius: "24px",
+    textAlign: "center",
+    boxShadow: "0 20px 50px rgba(0,0,0,.08)",
   },
 
-
-  icon:{
-    fontSize:"48px",
-    marginBottom:"15px"
+  icon: {
+    fontSize: "48px",
+    marginBottom: "15px",
   },
 
-
-  title:{
-    fontSize:"28px",
-    fontWeight:800,
-    marginBottom:"12px"
+  title: {
+    fontSize: "28px",
+    fontWeight: 800,
+    marginBottom: "12px",
   },
 
-
-  subtitle:{
-    color:"#64748b",
-    fontSize:"15px",
-    marginBottom:"25px"
+  subtitle: {
+    color: "#64748b",
+    fontSize: "15px",
+    marginBottom: "25px",
   },
 
-
-  loader:{
-    color:"#64748b",
-    fontSize:"14px"
+  loader: {
+    color: "#64748b",
+    fontSize: "14px",
   },
 
-
-  button:{
-    display:"inline-block",
-    background:"#000",
-    color:"#fff",
-    padding:"14px 25px",
-    borderRadius:"12px",
-    textDecoration:"none",
-    fontWeight:700,
-    cursor:"pointer",
-    border:"none"
+  button: {
+    display: "inline-block",
+    background: "#000",
+    color: "#fff",
+    padding: "14px 25px",
+    borderRadius: "12px",
+    textDecoration: "none",
+    fontWeight: 700,
+    cursor: "pointer",
+    border: "none",
   },
 
-
-  session:{
-    marginTop:"25px",
-    fontSize:"11px",
-    color:"#94a3b8",
-    wordBreak:"break-all"
-  }
-
+  session: {
+    marginTop: "25px",
+    fontSize: "11px",
+    color: "#94a3b8",
+    wordBreak: "break-all",
+  },
 };

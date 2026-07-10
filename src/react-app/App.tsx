@@ -14,6 +14,7 @@ import BlogPostPage from "./blog/[slug]/page";
 import Translate from "./pages/Translate";
 import Braille from "./pages/Braille";
 import WorkspacePage from "./pages/Workspace";
+import SuccessPage from "./pages/Success";
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="translate" element={<Translate />} />
           <Route path="braille" element={<Braille />} />
           <Route path="/workspace" element={<WorkspacePage />} />
+          <Route path="/success" element={<SuccessPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -65,46 +65,47 @@ const plans = [
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
 
-  async function checkout(plan: any) {
-    if (plan.planKey === "free") {
-      window.location.href = "/login";
-      return;
-    }
-
-    setLoading(plan.planKey);
-
-    try {
-      const BILLING_URL = import.meta.env.VITE_BILLING_URL;
-
-      const res = await fetch(BILLING_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-        price_id: plan.stripePriceId,
-        email: auth.currentUser?.email,
-        }),
-      });
-
-      const data = await res.json();
-
-      window.location.href = data.url;
-
-
-      if (!res.ok) {
-        throw new Error(data.error || "Checkout failed");
-      }
-
-      window.location.href = data.url;
-
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong starting checkout.");
-    } finally {
-      setLoading(null);
-    }
+ async function checkout(plan: any) {
+  if (plan.planKey === "free") {
+    window.location.href = "/login";
+    return;
   }
+
+  setLoading(plan.planKey);
+
+  try {
+    const BILLING_URL = import.meta.env.VITE_BILLING_URL;
+
+    const res = await fetch(BILLING_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        price_id: plan.stripePriceId,
+        email: auth.currentUser?.email || "test@example.com",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || data.error || "Checkout failed");
+    }
+
+    if (!data.url) {
+      throw new Error("No checkout URL returned");
+    }
+
+    window.location.href = data.url;
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong starting checkout.");
+  } finally {
+    setLoading(null);
+  }
+}
 
   return (
     <main className="min-h-screen bg-green-50 text-black">
