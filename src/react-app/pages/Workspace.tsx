@@ -87,7 +87,7 @@ export default function WorkspacePage() {
       const timeoutId = setTimeout(() => controller.abort(), 60000);
 
       const res = await fetch(
-        "https://my-backend-1-qdhh.onrender.com/api/translate",
+        "https://api.justiceoncall.ca/",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

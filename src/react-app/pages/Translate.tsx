@@ -24,7 +24,7 @@ export default function Translate() {
     setLoading(true);
     try {
       const res = await fetch(
-        "https://my-backend-1-qdhh.onrender.com/api/ai",
+        "https://api.justiceoncall.ca",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
