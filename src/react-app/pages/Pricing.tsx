@@ -9,6 +9,7 @@ const plans = [
     desc: "Perfect for getting started.",
     stripePriceId: null,
     features: [
+      "20 AI credits",
       "3 translations per day",
       "Basic language support",
       "Text-to-speech",

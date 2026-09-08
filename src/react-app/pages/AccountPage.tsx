@@ -24,14 +24,14 @@ import {
 } from "firebase/firestore";
 
 
-const STRIPE_PRO_MONTHLY_LINK =
-  "https://buy.stripe.com/bJe6oJ3zke4y3Vq8rR8k80j";
+const STRIPE_PRO_PRICE_ID =
+  "price_1TbF9BPE4wCsfg732ScUJfmc";
 
-const STRIPE_BUSINESS_MONTHLY_LINK =
-  "https://buy.stripe.com/8x2dRb1rc0dIfE8dMb8k809";
+const STRIPE_BUSINESS_PRICE_ID =
+  "price_1TnzrFPE4wCsfg73xSOMZNuH";
 
-const STRIPE_PREMIUM_MONTHLY_LINK =
-  "https://buy.stripe.com/8x228t8TEbWq9fK23t8k80k";
+const STRIPE_PREMIUM_PRICE_ID =
+  "price_1TGwAJPE4wCsfg73gMQlv8Ph";
 
 
 export default function AccountPage() {
@@ -43,6 +43,7 @@ export default function AccountPage() {
   const [credits, setCredits] = useState(20);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function AccountPage() {
             const data = snap.data();
 
             setPlan(data.plan || "free");
+
             setCredits(
               data.credits ?? 20
             );
@@ -85,7 +87,6 @@ export default function AccountPage() {
   }, []);
 
 
-
   const openDashboard = () => {
 
     if (
@@ -100,6 +101,82 @@ export default function AccountPage() {
   };
 
 
+  const handleCheckout = async (
+    priceId: string,
+    planKey: string
+  ) => {
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    setCheckoutLoading(planKey);
+
+    try {
+
+      const BILLING_URL =
+        import.meta.env.VITE_BILLING_URL;
+
+      if (!BILLING_URL) {
+        throw new Error(
+          "Billing URL is not configured."
+        );
+      }
+
+      const res = await fetch(
+        BILLING_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            price_id: priceId,
+            email: user.email || "test@example.com",
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data.detail ||
+          data.error ||
+          "Checkout failed"
+        );
+      }
+
+      if (!data.url) {
+        throw new Error(
+          "No checkout URL returned"
+        );
+      }
+
+      window.location.href = data.url;
+
+    } catch (error) {
+
+      console.error(
+        "Checkout error:",
+        error
+      );
+
+      alert(
+        "Something went wrong starting checkout."
+      );
+
+    } finally {
+
+      setCheckoutLoading(null);
+
+    }
+
+  };
+
 
   const handleLogout = async () => {
 
@@ -108,7 +185,6 @@ export default function AccountPage() {
     navigate("/login");
 
   };
-
 
 
   const handleDeleteAccount = async () => {
@@ -149,7 +225,6 @@ export default function AccountPage() {
   };
 
 
-
   if (loading) {
 
     return (
@@ -165,7 +240,6 @@ export default function AccountPage() {
   }
 
 
-
   return (
 
     <div className="min-h-screen bg-slate-50 p-6">
@@ -176,29 +250,23 @@ export default function AccountPage() {
 
         <div className="flex justify-between items-center border-b pb-5">
 
-         <button
-           onClick={() => navigate("/dashboard")}
-           className="text-sm font-bold text-emerald-600"
-         >
-           Dashboard
-         </button>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="text-sm font-bold text-emerald-600"
+          >
+            Dashboard
+          </button>
 
           <h1 className="font-black">
-
             NOAH Account
-
           </h1>
-
 
         </div>
 
 
-
         <div className="flex items-center gap-4 bg-slate-100 p-5 rounded-2xl">
 
-
           <User className="text-emerald-600"/>
-
 
           <div>
 
@@ -212,10 +280,7 @@ export default function AccountPage() {
 
           </div>
 
-
         </div>
-
-
 
 
         <div className="bg-slate-900 text-white rounded-3xl p-6 space-y-5">
@@ -232,17 +297,16 @@ export default function AccountPage() {
           </div>
 
 
-
           <p className="text-sm text-slate-300">
 
             Credits remaining:
             {" "}
+
             {plan === "free"
               ? credits
               : "Unlimited"}
 
           </p>
-
 
 
           <div className="space-y-2 text-sm">
@@ -274,21 +338,12 @@ export default function AccountPage() {
           </div>
 
 
-
-
           <button
-
             onClick={openDashboard}
-
             className="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold"
-
           >
-
             Open Dashboard
-
           </button>
-
-
 
 
           {plan === "free" && (
@@ -303,54 +358,67 @@ export default function AccountPage() {
           )}
 
 
-
           <div className="grid grid-cols-1 gap-3 pt-4">
 
 
-            <a
-              href={STRIPE_PRO_MONTHLY_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-black text-center py-3 rounded-xl font-bold"
+            <button
+              onClick={() =>
+                handleCheckout(
+                  STRIPE_PRO_PRICE_ID,
+                  "pro"
+                )
+              }
+              disabled={checkoutLoading !== null}
+              className="bg-white text-black text-center py-3 rounded-xl font-bold disabled:opacity-50"
             >
 
-              Upgrade Pro $15/mo
+              {checkoutLoading === "pro"
+                ? "Loading..."
+                : "Upgrade Pro $19/mo"}
 
-            </a>
+            </button>
 
 
-
-            <a
-              href={STRIPE_BUSINESS_MONTHLY_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-black text-center py-3 rounded-xl font-bold"
+            <button
+              onClick={() =>
+                handleCheckout(
+                  STRIPE_BUSINESS_PRICE_ID,
+                  "business"
+                )
+              }
+              disabled={checkoutLoading !== null}
+              className="bg-white text-black text-center py-3 rounded-xl font-bold disabled:opacity-50"
             >
 
-              Business $29/mo
+              {checkoutLoading === "business"
+                ? "Loading..."
+                : "Business $29/mo"}
 
-            </a>
+            </button>
 
 
-
-            <a
-              href={STRIPE_PREMIUM_MONTHLY_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-black text-center py-3 rounded-xl font-bold"
+            <button
+              onClick={() =>
+                handleCheckout(
+                  STRIPE_PREMIUM_PRICE_ID,
+                  "premium"
+                )
+              }
+              disabled={checkoutLoading !== null}
+              className="bg-white text-black text-center py-3 rounded-xl font-bold disabled:opacity-50"
             >
 
-              Premium $49/mo
+              {checkoutLoading === "premium"
+                ? "Loading..."
+                : "Premium $49/mo"}
 
-            </a>
+            </button>
 
 
           </div>
 
 
         </div>
-
-
 
 
         <div className="grid grid-cols-2 gap-3">
@@ -365,7 +433,6 @@ export default function AccountPage() {
             Logout
 
           </button>
-
 
 
           <button
@@ -383,7 +450,6 @@ export default function AccountPage() {
         </div>
 
 
-
         <div className="text-xs text-center text-gray-400 flex justify-center gap-2">
 
           <ShieldAlert size={14}/>
@@ -393,9 +459,7 @@ export default function AccountPage() {
         </div>
 
 
-
       </div>
-
 
     </div>
 

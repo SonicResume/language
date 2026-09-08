@@ -3,7 +3,6 @@ import cors from "cors";
 import multer from "multer";
 import PQueue from "p-queue";
 import path from "path";
-import rateLimit from "express-rate-limit";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import Stripe from "stripe";
@@ -14,6 +13,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import mammoth from "mammoth";
 import { createRequire } from "module";
+import rateLimit from "express-rate-limit";
 
 const OUTPUT_LOCK = `
 IMPORTANT OUTPUT RULES:
@@ -34,12 +34,16 @@ if (fs.existsSync(USERS_FILE)) {
   USERS = JSON.parse(fs.readFileSync(USERS_FILE));
 }
 
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
+
 const RESET = {};
 const userCredits = {};
 
 const queue = new PQueue({ concurrency: 2 });
 const app = express();
+
 const limiter = rateLimit({
   windowMs: 60 * 1000,
   max: 999
@@ -49,25 +53,37 @@ app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// Secure File Ingestion Configuration
 const upload = multer({
   dest: "uploads/",
-  limits: { fileSize: 2 * 1024 * 1024 }
+  limits: {
+    fileSize: 2 * 1024 * 1024
+  }
 });
 
 const cache = new Map();
 
-/* ---------------- OPERATIONAL INPUT NORMALIZERS ---------------- */
+/* ---------------- CÉLINE API ---------------- */
+
+const CELINE_API =
+  process.env.CELINE_API_URL ||
+  "https://api.justiceoncall.ca";
+
+const CELINE_TRANSLATE_ENDPOINT =
+  `${CELINE_API}/api/generate`;
+
+/* ---------------- NORMALIZERS ---------------- */
 
 function normalizeTool(tool) {
   const t = String(tool || "").toLowerCase();
+
+  if (t.includes("translate")) return "translate";
   if (t.includes("rewrite")) return "rewrite";
   if (t.includes("expand")) return "expand";
   if (t.includes("summarize")) return "summarize";
   if (t.includes("grammar")) return "grammar";
   if (t.includes("tone")) return "tone";
-  if (t.includes("translate")) return "translate";
-  return "rewrite";
+
+  return "translate";
 }
 
 function normalizeContentType(type) {
@@ -78,7 +94,11 @@ function normalizeContentType(type) {
     "seo product text": "seo-optimized product content",
     "brand story (about us)": "brand story for about page"
   };
-  return map[String(type || "").toLowerCase()] || "marketing content";
+
+  return (
+    map[String(type || "").toLowerCase()] ||
+    "marketing content"
+  );
 }
 
 function normalizeLanguage(language) {
@@ -90,179 +110,366 @@ function normalizeLanguage(language) {
     portuguese: "Portuguese",
     japanese: "Japanese",
     chinese: "Chinese",
-    korean: "Korean"
+    korean: "Korean",
+    english: "English",
+    dutch: "Dutch",
+    arabic: "Arabic",
+    russian: "Russian",
+    ukrainian: "Ukrainian",
+    polish: "Polish",
+    swedish: "Swedish",
+    norwegian: "Norwegian",
+    danish: "Danish",
+    finnish: "Finnish",
+    greek: "Greek",
+    hebrew: "Hebrew",
+    hindi: "Hindi",
+    bengali: "Bengali",
+    urdu: "Urdu",
+    tamil: "Tamil",
+    telugu: "Telugu",
+    vietnamese: "Vietnamese",
+    thai: "Thai",
+    turkish: "Turkish",
+    indonesian: "Indonesian",
+    malay: "Malay",
+    filipino: "Filipino",
+    swahili: "Swahili",
+    romanian: "Romanian",
+    czech: "Czech",
+    slovak: "Slovak",
+    hungarian: "Hungarian",
+    bulgarian: "Bulgarian",
+    icelandic: "Icelandic",
+    irish: "Irish",
+    maltese: "Maltese",
+    persian: "Persian",
+    nepali: "Nepali",
+    sinhala: "Sinhala",
+    lao: "Lao",
+    burmese: "Burmese",
+    afrikaans: "Afrikaans",
+    albanian: "Albanian"
   };
-  return map[String(language || "").toLowerCase()] || "Spanish";
+
+  return (
+    map[String(language || "").toLowerCase()] ||
+    language ||
+    "Spanish"
+  );
 }
 
-/* ---------------- MISTRAL CLOUD MODEL ROUTER ---------------- */
-function pickModel(tool) {
-  // 🧠 HEAVY CONTEXT / CREATIVE WRITING / ADVANCED REASONING -> MISTRAL LARGE
-  if (tool === "rewrite" || tool === "expand" || tool === "tone" || tool === "translate") {
-    return "mistral-large-latest";
-  }
-  // ✂️ SPEED / HIGH PRECISION TASKS -> MISTRAL SMALL
-  if (tool === "grammar" || tool === "summarize") {
-    return "mistral-small-latest";
-  }
-  // ⚡ FALLBACK
-  return "mistral-small-latest";
-}
+/* ---------------- CÉLINE ---------------- */
 
-/* ---------------- SYSTEM PROMPT CONSTRUCTORS ---------------- */
-function buildPrompt(text, tool, contentType, language, tone) {
-  if (tool === "translate") {
-    return `You are a strict translator. Translate the following text into ${language || "Spanish"}.\n\nRules:\n- ONLY output the translated text\n- NO explanations\n- NO rewriting\n\nText:\n${text}`;
-  }
-  if (contentType.includes("product description")) {
-    return `Rewrite this into a HIGH-CONVERTING product description.\n\nRules:\n- Focus on benefits over features\n- Make it persuasive and emotional\n- Use short punchy sentences\n- Increase desire and urgency\n\nText:\n${text}\n\nReturn only the final text.`;
-  }
-  if (contentType.includes("ad copy")) {
-    return `Rewrite this into viral ad copy for Facebook and TikTok.\n\nRules:\n- Strong hook in first line\n- Short and punchy\n- High emotion\n- Include call to action\n\nText:\n${text}\n\nReturn only the ad copy.`;
-  }
-  if (contentType.includes("instagram")) {
-    return `Rewrite this into an engaging Instagram caption.\n\nRules:\n- Conversational tone\n- Add storytelling\n- Include subtle CTA\n- Make it scroll-stopping\n\nText:\n${text}`;
-  }
-  if (contentType.includes("seo")) {
-    return `Rewrite this into SEO-optimized product content.\n\nRules:\n- Include keywords naturally\n- Improve readability\n- Structure clearly\n- Still conversion-focused\n\nText:\n${text}`;
-  }
-  if (contentType.includes("brand story")) {
-    return `Rewrite this into a compelling brand story.\n\nRules:\n- Emotional connection\n- Clear mission and values\n- Authentic tone\n- Inspire trust\n\nText:\n${text}`;
-  }
-  return `Rewrite this clearly and professionally:\n${text}`;
-}
+async function runCeline(text, language) {
+  try {
+    const response = await axios.post(
+      CELINE_TRANSLATE_ENDPOINT,
+      {
+        model: process.env.CELINE_MODEL,
+        prompt: `Translate the following text into ${language}. Return only the translation, with no explanation:\n\n${text}`,
+        stream: false
+      },
+      {
+        timeout: 120000,
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
 
-/* ---------------- MULTI-FORMAT FILE READER ---------------- */
+    const result = response.data?.response;
+
+    if (
+      typeof result !== "string" ||
+      !result.trim()
+    ) {
+      throw new Error(
+        "Céline returned an empty translation."
+      );
+    }
+
+    return result.trim();
+  } catch (error) {
+    const details =
+      error.response
+        ? JSON.stringify(error.response.data)
+        : error.message;
+
+    throw new Error(
+      `Céline API error: ${details}`
+    );
+  }
+}
+/* ---------------- FILE READER ---------------- */
+
 async function readFile(file) {
-  const ext = path.extname(file.originalname).toLowerCase();
-  if ([".txt", ".md", ".csv", ".json"].includes(ext)) {
-    const text = await fs.promises.readFile(file.path, "utf8");
-    await fs.unlink(file.path);
+  const ext =
+    path.extname(file.originalname).toLowerCase();
+
+  if (
+    [".txt", ".md", ".csv", ".json"].includes(ext)
+  ) {
+    const text =
+      await fs.promises.readFile(
+        file.path,
+        "utf8"
+      );
+
+    await fs.promises.unlink(file.path);
+
     return text;
   }
+
   if (ext === ".pdf") {
-    const dataBuffer = fs.readFileSync(file.path);
-    const data = await pdf(dataBuffer);
-    await fs.unlink(file.path);
+    const dataBuffer =
+      fs.readFileSync(file.path);
+
+    const data =
+      await pdf(dataBuffer);
+
+    await fs.promises.unlink(file.path);
+
     return data.text;
   }
+
   if (ext === ".docx") {
-    const data = await mammoth.extractRawText({ path: file.path });
-    await fs.unlink(file.path);
+    const data =
+      await mammoth.extractRawText({
+        path: file.path
+      });
+
+    await fs.promises.unlink(file.path);
+
     return data.value;
   }
+
   throw new Error("Unsupported file type");
 }
-/* ---------------- MISTRAL CLOUD RUNTIME ENGINES ---------------- */
 
-async function runMistralCloud(model, prompt) {
-  if (!process.env.MISTRAL_API_KEY) {
-    throw new Error("Missing MISTRAL_API_KEY environment variable assignment.");
+/* ---------------- PROCESS TEXT ---------------- */
+
+async function processText(
+  text,
+  tool,
+  contentType,
+  language,
+  tone
+) {
+  const normalizedTool =
+    normalizeTool(tool);
+
+  const normalizedLanguage =
+    normalizeLanguage(language);
+
+  if (normalizedTool === "translate") {
+    const cacheKey =
+      `celine:${normalizedLanguage}:${text}`;
+
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+
+    const result =
+      await queue.add(() =>
+        runCeline(
+          text,
+          normalizedLanguage
+        )
+      );
+
+    cache.set(cacheKey, result);
+
+    return result;
   }
 
-  try {
-    // Dispatching secure requests straight to the Mistral Chat Completions Cloud endpoint
-   const response = await axios.post(
-  "https://api.mistral.ai/v1/chat/completions",
-  {
-    model: model,
-    messages: [
-      { role: "user", content: prompt }
-    ],
-    temperature: 0.2,
-    max_tokens: 1500
-  },
-  {
-    headers: {
-      Authorization: `Bearer ${process.env.MISTRAL_API_KEY}`,
-      "Content-Type": "application/json"
+  throw new Error(
+    "Only translation through Céline is enabled."
+  );
+}
+
+/* ---------------- HEALTH ---------------- */
+
+app.get(
+  "/api/health",
+  (req, res) => {
+    res.json({
+      success: true,
+      engine: "Céline",
+      status: "Synchronized",
+      celine: CELINE_API
+    });
+  }
+);
+
+/* ---------------- TRANSLATE ---------------- */
+
+app.post(
+  "/api/translate",
+  limiter,
+  async (req, res) => {
+    try {
+      const {
+        text,
+        lang,
+        language
+      } = req.body;
+
+      if (
+        typeof text !== "string" ||
+        !text.trim()
+      ) {
+        return res.status(400).json({
+          success: false,
+          error:
+            "Missing required text input."
+        });
+      }
+
+      const targetLanguage =
+        normalizeLanguage(
+          language || lang
+        );
+
+      const output =
+        await runCeline(
+          text,
+          targetLanguage
+        );
+
+      res.json({
+        success: true,
+        result: output,
+        translatedText: output,
+        text: output,
+        language: targetLanguage,
+        engine: "Céline",
+        api: CELINE_API
+      });
+    } catch (error) {
+      console.error(
+        "Céline translation error:",
+        error
+      );
+
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
     }
   }
 );
 
-    return response.data.choices?.[0]?.message?.content || "";
-  } catch (error) {
-    const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
-    throw new Error(`Mistral Cloud Execution Exception: ${errorDetails}`);
-  }
-}
+/* ---------------- GENERAL PROCESS ---------------- */
 
-async function runModel(model, prompt) {
-  try {
-    // 🟢 Try Production Level Mistral AI Cloud Channels
-    return await runMistralCloud(model, prompt);
-  } catch (err) {
-    console.log("❌ Mistral Cloud Request Fault:", err.message);
-    return "AI cloud sub-services temporarily unavailable. Please verify API gateway authorizations and try again.";
-  }
-}
+app.post(
+  "/api/process",
+  limiter,
+  async (req, res) => {
+    try {
+      const {
+        text,
+        tool,
+        contentType,
+        language,
+        tone
+      } = req.body;
 
-/* ---------------- DATA PIPELINE EXECUTION ---------------- */
+      if (!text) {
+        return res.status(400).json({
+          success: false,
+          error:
+            "Missing required text input variable."
+        });
+      }
 
-async function processText(text, tool, contentType, language, tone) {
-  const normalizedTool = normalizeTool(tool);
-  const normalizedType = normalizeContentType(contentType);
-  const normalizedLanguage = normalizeLanguage(language);
+      const output =
+        await processText(
+          text,
+          tool,
+          contentType,
+          language,
+          tone
+        );
 
-  const model = pickModel(normalizedTool);
-  const prompt = buildPrompt(text, normalizedTool, normalizedType, normalizedLanguage, tone);
-
-  const cacheKey = normalizedTool + normalizedType + text;
-  if (cache.has(cacheKey)) {
-    return cache.get(cacheKey);
-  }
-
-  const result = await queue.add(() => runModel(model, prompt));
-  cache.set(cacheKey, result);
-  return result;
-}
-
-/* ---------------- API NETWORK ROUTING ---------------- */
-
-/* DIAGNOSTIC HEALTH CHECK */
-app.get("/api/health", (req, res) => {
-  res.json({
-    success: true,
-    engine: "Mistral AI Cloud Production Node",
-    status: "Synchronized"
-  });
-});
-
-/* ANALYTICAL DISCOVERY INTERFACE ENDPOINT */
-app.post("/api/process", limiter, async (req, res) => {
-  try {
-    const { text, tool, contentType, language, tone } = req.body;
-    if (!text) {
-      return res.status(400).json({ success: false, error: "Missing required text input variable." });
+      res.json({
+        success: true,
+        result: output
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
     }
-
-    const output = await processText(text, tool, contentType, language, tone);
-    res.json({ success: true, result: output });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
   }
-});
+);
 
-/* INGESTION FILE STREAM INTERFACE ENDPOINT */
-app.post("/api/upload", limiter, upload.single("file"), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ success: false, error: "No uncorrupted binary data asset discovered in multipart stream." });
+/* ---------------- FILE UPLOAD ---------------- */
+
+app.post(
+  "/api/upload",
+  limiter,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          error: "No file uploaded."
+        });
+      }
+
+      const {
+        tool,
+        contentType,
+        language,
+        tone
+      } = req.body;
+
+      const extractedText =
+        await readFile(req.file);
+
+      const output =
+        await processText(
+          extractedText,
+          tool,
+          contentType,
+          language,
+          tone
+        );
+
+      res.json({
+        success: true,
+        result: output
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
     }
-
-    const { tool, contentType, language, tone } = req.body;
-    const extractedText = await readFile(req.file);
-    const output = await processText(extractedText, tool, contentType, language, tone);
-
-    res.json({ success: true, result: output });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
   }
-});
+);
 
-const PORT = 3003;
-app.listen(PORT, () => {
-  console.log(`[CIE NODE INITIALIZED]: Infrastructure routing active across gateway port ${PORT}`);
-});
+/* ---------------- SERVER ---------------- */
 
+const PORT =
+  process.env.PORT || 3003;
 
+app.listen(
+  PORT,
+  () => {
+    console.log(
+      `[CIE NODE INITIALIZED] API running on port ${PORT}`
+    );
+
+    console.log(
+      `[CÉLINE] API: ${CELINE_API}`
+    );
+
+    console.log(
+      `[CÉLINE] Translation endpoint: ${CELINE_TRANSLATE_ENDPOINT}`
+    );
+  }
+);
