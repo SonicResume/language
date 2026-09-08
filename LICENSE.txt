@@ -1,30 +1,29 @@
-MIT License
-SonicResume Group Proprietary License
+SonicResume Group Commercial Use License
 
-Copyright (c) 2026 SonicResume Group. All rights reserved.
+Copyright © 2026 SonicResume Group. All rights reserved.
 
-This software and all associated source code, documentation, designs, content,
-trademarks, and intellectual property are the exclusive property of
-SonicResume Group ("Owner").
+Noah Language is proprietary software owned by SonicResume Group.
 
-Permission is NOT granted to copy, reproduce, modify, distribute, publish,
-license, sublicense, sell, resell, or commercially exploit this software or
-any substantial portion of it without prior written permission from
-SonicResume Group.
+The source code may be viewed for evaluation, educational, and
+non-commercial purposes, subject to the terms of this license.
 
-You may view the source code for personal evaluation, educational review,
-or security research, provided that such use does not involve copying,
-redistributing, modifying, or commercially exploiting the software.
+COMMERCIAL USE
 
-No rights are granted to use the SonicResume Group name, trademarks, logos,
-branding, or other intellectual property without prior written permission.
+Commercial use of Noah Language requires a valid commercial license
+purchased from SonicResume Group.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+A commercial license grants the licensed customer permission to use
+Noah Language for commercial purposes according to the terms of the
+purchased license.
 
-For commercial licensing, acquisition inquiries, or permission to use this
-software, contact SonicResume Group.
+A commercial license does not transfer ownership of the software,
+source code, trademarks, branding, or intellectual property.
+
+Without a valid commercial license, commercial use, resale,
+redistribution, sublicensing, or incorporation of the software into
+a commercial product is prohibited.
+
+SonicResume Group retains all ownership and intellectual property
+rights in Noah Language.
 
 © 2026 SonicResume Group. All rights reserved.
-
