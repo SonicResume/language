@@ -1,28 +1,59 @@
-# Noah Language
+# 🌍 Noah Language
 
-**AI-Powered Translation, Writing & Accessibility Platform**
+### AI-Powered Translation, Writing & Accessibility Platform
 
-Noah Language is an AI-powered language and writing platform designed to help users translate, improve, summarize, and transform written content across multiple languages.
+**Noah Language** is a multilingual AI language platform developed by **SonicResume Group**.
 
-The platform also includes accessibility-focused features such as Braille text conversion and voice interaction.
+It provides translation, writing assistance, text transformation, voice features, and Braille text conversion in one modern web application.
 
 ## 🌐 Live Application
 
-**Website:** https://language.sonicresume.com
+**Live Website:**
+https://language.sonicresume.com
 
 ## ✨ Features
 
-* 🌍 Multilingual translation
+* 🌍 **Up to 250 languages**
+* 🔄 AI-powered translation
 * ✍️ AI writing and rewriting
 * 📝 Grammar improvement
 * 📖 Text summarization
 * 🎯 Tone adjustment
 * 🔊 Voice input and output
 * ⠿ Braille text conversion
-* 🌎 Support for multiple languages
-* ⚡ Modern React interface
-* ☁️ Cloud-hosted backend
+* 🌎 Multilingual language tools
+* ⚡ Fast modern web interface
+* ☁️ Cloud-based backend
 * 🔐 API-based AI processing
+
+## 🌍 Multilingual Support
+
+Noah Language is designed to support **up to 250 languages**, making the platform suitable for users working across different languages and regions.
+
+Language availability and translation quality may vary depending on the language and underlying AI model.
+
+## ♿ Accessibility
+
+Noah Language includes accessibility-focused functionality, including **Braille text conversion**.
+
+The Braille feature converts text into digital Unicode Braille characters.
+
+For example:
+
+```text
+Hello
+↓
+⠓⠑⠇⠇⠕
+
+```
+
+The Unicode Braille output can provide a digital representation of Braille patterns and can serve as a foundation for accessibility workflows involving screen readers and refreshable Braille displays.
+
+## 🎙️ Voice Features
+
+Noah Language includes voice functionality designed to make language interaction easier and more accessible.
+
+Users can interact with language content using voice input and output where supported by the browser and device.
 
 ## 🛠️ Technology
 
@@ -32,6 +63,7 @@ The platform also includes accessibility-focused features such as Braille text c
 * TypeScript
 * Vite
 * React Router
+* CSS
 
 ### Backend
 
@@ -44,25 +76,39 @@ The platform also includes accessibility-focused features such as Braille text c
 
 Noah Language connects to an AI language-processing backend for translation and writing assistance.
 
-## ♿ Accessibility
-
-Noah Language includes accessibility-oriented functionality, including Braille text conversion.
-
-The current Braille feature converts text into Unicode Braille characters that can be displayed digitally and can serve as a foundation for compatibility with accessibility technologies and refreshable Braille displays.
-
 ## 📂 Project Structure
 
 ```text
 noah-language/
+├── backend/
+├── docs/
+├── public/
 ├── src/
 │   └── react-app/
-├── public/
+│       ├── components/
+│       ├── data/
+│       ├── lib/
+│       ├── pages/
+│       ├── types/
+│       ├── blog/
+│       ├── App.tsx
+│       ├── index.css
+│       └── main.tsx
+├── README.md
+├── LICENSE.txt
 ├── package.json
 ├── vite.config.ts
-└── README.md
+└── vercel.json
 ```
 
-## 🚀 Development
+## 🚀 Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/SonicResume/language.git
+cd language
+```
 
 Install dependencies:
 
@@ -84,16 +130,16 @@ npm run build
 
 ## 🔌 API
 
-The application communicates with a Node.js/Express backend.
+The application communicates with a Node.js/Express backend for AI-powered processing.
 
-Example AI request:
+Example translation request:
 
 ```http
 POST /api/ai
 Content-Type: application/json
 ```
 
-Example request:
+Example:
 
 ```json
 {
@@ -104,16 +150,28 @@ Example request:
 }
 ```
 
+Example response:
+
+```json
+{
+  "success": true,
+  "result": "Hola"
+}
+```
+
 ## 🔒 Security
 
-Do not commit:
+Do not commit sensitive information to GitHub.
+
+Never upload:
 
 * API keys
 * Passwords
 * Authentication tokens
+* `.env` files
 * Private environment variables
 * User data
-* Production secrets
+* Production credentials
 
 Use environment variables for sensitive configuration.
 
@@ -123,16 +181,35 @@ Use environment variables for sensitive configuration.
 
 Copyright © 2026 SonicResume Group. All rights reserved.
 
-This repository is proprietary software. Viewing the source code does not grant permission to copy, modify, redistribute, resell, or commercially exploit the software without written permission from SonicResume Group.
+This software and its associated source code, documentation, designs, content, trademarks, and intellectual property are proprietary to SonicResume Group.
 
-See the `LICENSE` file for the complete terms.
+Unauthorized copying, modification, redistribution, resale, or commercial exploitation is prohibited.
 
-## 💼 Commercial & Acquisition Inquiries
+See `LICENSE.txt` for the complete license terms.
 
-Noah Language is a proprietary software platform developed by **SonicResume Group**.
+## 💼 Commercial & Acquisition
 
-For commercial licensing, partnerships, investment, or acquisition inquiries, please contact SonicResume Group.
+Noah Language is a proprietary software platform developed and owned by **SonicResume Group**.
+
+The platform is available for:
+
+* Commercial partnerships
+* Licensing opportunities
+* Strategic partnerships
+* Investment discussions
+* Acquisition inquiries
+
+## 📈 Project Vision
+
+Noah Language aims to bring **translation, AI writing assistance, voice interaction, and accessibility tools** together in a single multilingual platform.
+
+The long-term vision is to make communication more accessible across languages, devices, and abilities.
 
 ---
 
-**© 2026 SonicResume Group. All rights reserved.**
+### SonicResume Group
+
+**Noah Language**
+AI Translation • Writing • Voice • Accessibility
+
+© 2026 SonicResume Group. All rights reserved.
