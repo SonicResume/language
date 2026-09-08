@@ -1,21 +1,30 @@
 MIT License
+SonicResume Group Proprietary License
 
-Copyright (c) 2026 SonicResume Group
+Copyright (c) 2026 SonicResume Group. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software and all associated source code, documentation, designs, content,
+trademarks, and intellectual property are the exclusive property of
+SonicResume Group ("Owner").
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Permission is NOT granted to copy, reproduce, modify, distribute, publish,
+license, sublicense, sell, resell, or commercially exploit this software or
+any substantial portion of it without prior written permission from
+SonicResume Group.
+
+You may view the source code for personal evaluation, educational review,
+or security research, provided that such use does not involve copying,
+redistributing, modifying, or commercially exploiting the software.
+
+No rights are granted to use the SonicResume Group name, trademarks, logos,
+branding, or other intellectual property without prior written permission.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+For commercial licensing, acquisition inquiries, or permission to use this
+software, contact SonicResume Group.
+
+© 2026 SonicResume Group. All rights reserved.
+
