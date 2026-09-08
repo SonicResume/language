@@ -68,9 +68,6 @@ const CELINE_API =
   process.env.CELINE_API_URL ||
   "https://api.justiceoncall.ca";
 
-const CELINE_TRANSLATE_ENDPOINT =
-  `${CELINE_API}/api/generate`;
-
 /* ---------------- NORMALIZERS ---------------- */
 
 function normalizeTool(tool) {
@@ -164,7 +161,7 @@ function normalizeLanguage(language) {
 async function runCeline(text, language) {
   try {
     const response = await axios.post(
-      CELINE_TRANSLATE_ENDPOINT,
+      `${CELINE_API}/api/generate`,
       {
         model: process.env.CELINE_MODEL,
         prompt: `Translate the following text into ${language}. Return only the translation, with no explanation:\n\n${text}`,
@@ -180,25 +177,17 @@ async function runCeline(text, language) {
 
     const result = response.data?.response;
 
-    if (
-      typeof result !== "string" ||
-      !result.trim()
-    ) {
-      throw new Error(
-        "Céline returned an empty translation."
-      );
+    if (!result || typeof result !== "string") {
+      throw new Error("Céline returned an empty translation.");
     }
 
     return result.trim();
   } catch (error) {
-    const details =
-      error.response
-        ? JSON.stringify(error.response.data)
-        : error.message;
+    const details = error.response
+      ? JSON.stringify(error.response.data)
+      : error.message;
 
-    throw new Error(
-      `Céline API error: ${details}`
-    );
+    throw new Error(`Céline API error: ${details}`);
   }
 }
 /* ---------------- FILE READER ---------------- */
@@ -466,10 +455,6 @@ app.listen(
 
     console.log(
       `[CÉLINE] API: ${CELINE_API}`
-    );
-
-    console.log(
-      `[CÉLINE] Translation endpoint: ${CELINE_TRANSLATE_ENDPOINT}`
     );
   }
 );

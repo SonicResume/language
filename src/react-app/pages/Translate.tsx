@@ -18,32 +18,54 @@ export default function Translate() {
   const [lang, setLang] = useState("es");
   const [loading, setLoading] = useState(false);
 
-  const translate = async () => {
-    if (!text.trim()) return;
+const translate = async () => {
+  if (!text.trim()) return;
 
-    setLoading(true);
-    try {
-      const res = await fetch(
-        "https://api.justiceoncall.ca",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text,
-            lang,
-            tool: "translate",
-          }),
-        }
-      );
+  setLoading(true);
 
-      const data = await res.json();
-      setOutput(data.result || "");
-    } catch {
-      setOutput("Error translating text");
+  try {
+    const targetLanguage =
+      languages.find((l) => l.code === lang)?.name || "English";
+
+    const res = await fetch(
+      "https://my-backend-1-qdhh.onrender.com/api/ai",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text,
+          tool: "translate",
+          language: targetLanguage,
+          contentType: "translation",
+          email: "guest",
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`HTTP error code status: ${res.status}`);
     }
-    setLoading(false);
-  };
 
+    const data = await res.json();
+
+    console.log("Translation response:", data);
+
+    setOutput(
+      data.translation ||
+      data.result ||
+      data.translatedText ||
+      data.text ||
+      ""
+    );
+  } catch (err) {
+    console.error("Translation error:", err);
+    setOutput("Translation failed. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-3xl mx-auto bg-white rounded-xl shadow p-6">

@@ -80,45 +80,66 @@ export default function WorkspacePage() {
     setSelectedLanguage(code);
   }, []);
 
-  const translateText = async (value: string, targetLang: string) => {
-    setLoading(true);
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
+const translateText = async (value: string, targetLang: string) => {
+  setLoading(true);
 
-      const res = await fetch(
-        "https://api.justiceoncall.ca/",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            text: value,
-             lang: targetLang, 
-          }),
-        }
-      );
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        throw new Error(`HTTP error code status: ${res.status}`);
+    const res = await fetch(
+      "https://my-backend-1-qdhh.onrender.com/api/ai",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          text: value,
+          tool: "translate",
+          language: targetLang,
+          contentType: "translation",
+          email: "guest",
+        }),
       }
+    );
 
-      const data = await res.json();
-      return data.translation || data.result || data.translatedText || data.text || value;
-    } catch (err: any) {
-      console.error("Translation error:", err);
-      if (err.name === 'AbortError') {
-        alert("⏱️ Server Sleep Cycle: The free tier on Render takes roughly 1 minute to boot up on the first connection call. Please tap the translation button once more!");
-      } else {
-        alert("❌ Request Failed: Unable to link with translation node.");
-      }
-      return value;
-    } finally {
-      setLoading(false);
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`HTTP error code status: ${res.status}`);
     }
-  };
+
+    const data = await res.json();
+
+    console.log("Translation response:", data);
+
+    return (
+      data.translation ||
+      data.result ||
+      data.translatedText ||
+      data.text ||
+      value
+    );
+
+  } catch (err: any) {
+    console.error("Translation error:", err);
+
+    if (err.name === "AbortError") {
+      alert(
+        "⏱️ Server Sleep Cycle: Render may be waking up. Please try the translation again."
+      );
+    } else {
+      alert("❌ Request Failed: Unable to link with translation node.");
+    }
+
+    return value;
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleConvert = async () => {
     if (!text.trim()) return;
