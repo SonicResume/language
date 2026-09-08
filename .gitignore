@@ -31,3 +31,4 @@ yarn-error.log*
 *.tmp.env
 backend/.env
 .vercel
+backend/

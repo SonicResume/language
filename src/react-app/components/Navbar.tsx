@@ -1,6 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Navbar() {
+  const location = useLocation();
+
+  // Hide "Start Free" inside the app
+  const insideApp =
+    location.pathname.startsWith("/workspace") ||
+    location.pathname.startsWith("/translate");
+
   return (
     <nav
       style={{
@@ -30,6 +37,7 @@ export default function Navbar() {
           style={{ width: "32px", height: "32px", objectFit: "contain" }}
           alt="Logo"
         />
+
         <Link
           to="/"
           style={{
@@ -55,18 +63,31 @@ export default function Navbar() {
           flexWrap: "wrap",
         }}
       >
-        <Link to="/" style={link}>Home</Link>
-        <Link to="/blog" style={link}>Blog</Link>
-        <Link to="/pricing" style={link}>Pricing</Link>
-        <Link to="/contact" style={link}>Contact</Link>
+        <Link to="/" style={link}>
+          Home
+        </Link>
+
+        <Link to="/blog" style={link}>
+          Blog
+        </Link>
+
+        <Link to="/pricing" style={link}>
+          Pricing
+        </Link>
+
+        <Link to="/contact" style={link}>
+          Contact
+        </Link>
       </div>
 
       {/* RIGHT BUTTON */}
-      <div style={{ display: "flex", gap: "12px", flexShrink: 0 }}>
-        <Link to="/login" style={{ textDecoration: "none" }}>
-          <button style={button}>Start Free</button>
-        </Link>
-      </div>
+      {!insideApp && (
+        <div style={{ display: "flex", gap: "12px", flexShrink: 0 }}>
+          <Link to="/login" style={{ textDecoration: "none" }}>
+            <button style={button}>Start Free</button>
+          </Link>
+        </div>
+      )}
     </nav>
   );
 }
